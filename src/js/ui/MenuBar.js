@@ -16,6 +16,8 @@ export class MenuBar {
 			button_backtostart: {},
 			button_zoomin: {},
 			button_zoomout: {},
+			selected_types: {},
+			vewing_types: {},
 			arrow: {},
 			line: {},
 			coverbar: {},
@@ -82,6 +84,10 @@ export class MenuBar {
 		}
 	}
 
+	onEventToggle() {
+		addClass
+	}
+
 	setSticky(y) {
 		this.options.menubar_default_y = y;
 	}
@@ -117,6 +123,10 @@ export class MenuBar {
 		this.fire("back_to_start", e);
 	}
 
+	_onSelectedEventTypes(e) {
+		this.fire("et_selection_menu", e);
+	}
+
 
 	/*	Private Methods
 	================================================== */
@@ -126,6 +136,7 @@ export class MenuBar {
 		this._el.button_zoomin = DOM.create('span', 'tl-menubar-button', this._el.container);
 		this._el.button_zoomout = DOM.create('span', 'tl-menubar-button', this._el.container);
 		this._el.button_backtostart = DOM.create('span', 'tl-menubar-button', this._el.container);
+		this._el.selected_types = DOM.create('span', 'tl-menubar-selection', this._el.container)
 
 		if (Browser.mobile) {
 			this._el.container.setAttribute("ontouchstart"," ");
@@ -134,6 +145,7 @@ export class MenuBar {
 		this._el.button_backtostart.innerHTML		= "<span class='tl-icon-goback'></span>";
 		this._el.button_zoomin.innerHTML			= "<span class='tl-icon-zoom-in'></span>";
 		this._el.button_zoomout.innerHTML			= "<span class='tl-icon-zoom-out'></span>";
+		this._el.selected_types.innerHTML           = "<span class='tl-icon-selected_types'></span>"
 
 
 	}
@@ -142,6 +154,7 @@ export class MenuBar {
 		DOMEvent.addListener(this._el.button_backtostart, 'click', this._onButtonBackToStart, this);
 		DOMEvent.addListener(this._el.button_zoomin, 'click', this._onButtonZoomIn, this);
 		DOMEvent.addListener(this._el.button_zoomout, 'click', this._onButtonZoomOut, this);
+		DOMEvent.addListener(this._el.selected_types, 'click', this._onSelectedEventTypes, this);
 	}
 
 	// Update Display

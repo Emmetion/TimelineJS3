@@ -52,7 +52,7 @@ function make_keydown_handler(timeline) {
  *     the Timeline should be bound
  * @param {object|String} - a JavaScript object conforming to the TimelineJS
  *     configuration format, or a String which is the URL for a Google Sheets document
- *     or JSON configuration file which Timeline will retrieve and parse into a JavaScript object.
+ *     or JSON configuration file which Timeline will retrieve and parse into a JavaScript object. // How to get the document imported from json, instead of URL.
  *     NOTE: do not pass a JSON String for this. TimelineJS doesn't try to distinguish a 
  *     JSON string from a URL string. If you have a JSON String literal, parse it using
  *     `JSON.parse` before passing it to the constructor.
