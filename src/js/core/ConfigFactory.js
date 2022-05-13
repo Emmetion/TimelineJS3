@@ -75,7 +75,7 @@ function extractEventFromCSVObject(orig_row) {
         group: row['Group'] || row['Tag'] || '', // small diff between v1 and v3 sheets
         background: interpretBackground(row['Background']), // only in v3 but no problem
         type: row['Type'] || '',
-        event_types: row['Event Type'] || 3
+        event_types: row['Event Type'] || ''
     }
 
     if (Object.keys(row).includes('Start Date') || Object.keys(row).includes('End Date')) {
