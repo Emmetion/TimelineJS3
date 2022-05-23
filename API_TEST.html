@@ -8,7 +8,7 @@
 <meta name="apple-touch-fullscreen" content="yes">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <!-- CSS-->
-<link rel="stylesheet" href="build/css/timeline.css?v1">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/EmmetSp/timeline-webserver@master/css/fonts/font.default.css">
 <!--FONT-->
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Bevan%7CPontano+Sans&amp;amp;subset=latin,latin">
 <!-- Style-->
@@ -75,6 +75,7 @@ html, body {
                 <br>
 
                 <select id="slide_id"></select>
+                <select id="slide_event_types" style="width: 40px; height: 20px" multiple></select>
                 <button id="goToId">goToId</button>
                 <button id="getDataId">getDataId</button>
                 <button id="getSlideId">getSlideId</button>
@@ -114,7 +115,8 @@ html, body {
     </div>
 
     <!-- JavaScript-->
-    <script src="build/js/timeline.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/EmmetSp/timeline-webserver@4f8176fb500a2429630bec77faadb54ae48d3553/js/timeline.js"></script>
+    
     <script>
 
     $('#add').click(function(event) {
@@ -204,7 +206,8 @@ html, body {
         // 'loaded', special handling
         // 'removed',  special handling
         'zoom_in',
-        'zoom_out'
+        'zoom_out',
+        'selected_types'
     ];
 
     // Log event details
@@ -232,10 +235,34 @@ html, body {
         $('#slide_id').html(html);
     }
 
-    var timeline = new TL.Timeline('timeline', 'compiled/examples/marktwain_test.json', {});
+    function init_slide_event_types(data) {
+        console.log('EVENT='+data.type, data)
+
+        var events = timeline.config.events;;
+        var html = '';
+
+        console.log("DEBUG------")
+        console.log(events.length)
+        console.log(events[0].start_date.data.year)
+
+        for(var i = 0; i < events.length; i++) {
+            var year = events[i].start_date.data.year
+            var addedValue = '<option>' + year + '</option>';
+            if (html.includes(addedValue)) { // Works
+                continue;
+            }
+            html += addedValue
+        }
+        $('#slide_event_types').html(html);
+    }
+
+    var timeline = new TL.Timeline('timeline', 'https://cdn.jsdelivr.net/gh/EmmetSp/timeline-webserver@660a2aae0f70f22a3de911298073c6e77fcad101/timeline-entries.json', {});
+    // Historic Northampton Timeline: https://cdn.jsdelivr.net/gh/EmmetSp/timeline-webserver@master/timeline-entries.json
+    // Provided: https://cdn.jsdelivr.net/gh/NUKnightLab/TimelineJS3@master/website/templates/examples/houston/timeline3.json
 
     // Set event handlers
     timeline.on('loaded', init_slide_menu);
+    timeline.on('loaded', init_slide_event_types)
     timeline.on('added', init_slide_menu);
     timeline.on('removed', init_slide_menu);
 
