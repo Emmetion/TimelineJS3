@@ -75,7 +75,7 @@ function extractEventFromCSVObject(orig_row) {
         group: row['Group'] || row['Tag'] || '', // small diff between v1 and v3 sheets
         background: interpretBackground(row['Background']), // only in v3 but no problem
         type: row['Type'] || '',
-        event_types: row['Event Type'] || ''
+        event_types: row['Event Type'] || ['']
     }
 
     if (Object.keys(row).includes('Start Date') || Object.keys(row).includes('End Date')) {
@@ -228,6 +228,7 @@ async function jsonFromGoogleURL(google_url, options) {
     var timeline_json = await readGoogleAsCSV(google_url, options['sheets_proxy']);
 
     if (timeline_json) {
+        console.log(timeline_json)
         return timeline_json;
     }
 }

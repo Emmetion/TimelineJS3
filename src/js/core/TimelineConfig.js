@@ -179,11 +179,11 @@ export class TimelineConfig {
             return null
                 // throw new TLError("missing_start_date_err", event_id);
         }
-        if (typeof(data.event_type == 'undefined')) {
-            trace("Missing event_type, skipping event")
+        if (typeof(data.event_types == 'undefined')) {
+            trace("DEBUG - Missing event_types skipping event!")
             console.log(data)
             return null;
-        }
+        } // Requiring an event_type specified.
 
         this._processDates(data);
         this._tidyFields(data);

@@ -31,6 +31,7 @@ HEADERS = [
 'Media Caption',
 'Media Thumbnail',
 'Type',
+'Event Type',
 'Group',
 'Background',
 ]

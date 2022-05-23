@@ -96,7 +96,7 @@ class Timeline {
         this.config = null;
 
         this.options = {
-            script_path: "https://cdn.knightlab.com/libs/timeline3/latest/js/", // as good a default as any
+            script_path: "https://cdn.jsdelivr.net/gh/Emmetion/TimelineJS3/src/js/", // as good a default as any
             height: this._el.container.offsetHeight,
             width: this._el.container.offsetWidth,
             debug: false,
@@ -471,7 +471,7 @@ class Timeline {
         this._menubar.on('zoom_in', this._onZoomIn, this);
         this._menubar.on('zoom_out', this._onZoomOut, this);
         this._menubar.on('back_to_start', this._onBackToStart, this);
-
+        this._menubar.on("selection_toggle", this._onSelectionToggle, this)
     }
 
     _onColorChange(e) {
@@ -503,7 +503,9 @@ class Timeline {
 
     }
 
-
+    _onSelectionToggle(e) {
+        this._menubar.selection
+    }
 
     _onChange(e) {
         this.fire("change", { unique_id: this.current_id }, this);
@@ -525,6 +527,10 @@ class Timeline {
     _onZoomOut(e) {
         this._timenav.zoomOut();
         this.fire("zoom_out", { zoom_level: this._timenav.options.scale_factor }, this);
+    }
+
+    _onSelectionToggle(e) {
+        this.fire("selection_toggle", { toggle: !this._timenav.options.selection_view }, this)
     }
 
     _onTimeNavLoaded() {

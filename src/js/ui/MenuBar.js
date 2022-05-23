@@ -16,7 +16,7 @@ export class MenuBar {
 			button_backtostart: {},
 			button_zoomin: {},
 			button_zoomout: {},
-			selected_types: {},
+			selected_types: {}, // Selected Event Types
 			vewing_types: {},
 			arrow: {},
 			line: {},
@@ -84,8 +84,12 @@ export class MenuBar {
 		}
 	}
 
-	onEventToggle() {
-		addClass
+	toggleSelectedEvents(show) {
+		if (show) {
+			removeClass(this._el.selected_types,'tl-menubar-button-inactive');
+		} else {
+			addClass(this._el.selected_types,'tl-menubar-button-inactive');
+		}
 	}
 
 	setSticky(y) {
@@ -123,8 +127,8 @@ export class MenuBar {
 		this.fire("back_to_start", e);
 	}
 
-	_onSelectedEventTypes(e) {
-		this.fire("et_selection_menu", e);
+	_onSelectedTypes(e) {
+		this.fire("selected_event_types", e);
 	}
 
 
@@ -136,7 +140,7 @@ export class MenuBar {
 		this._el.button_zoomin = DOM.create('span', 'tl-menubar-button', this._el.container);
 		this._el.button_zoomout = DOM.create('span', 'tl-menubar-button', this._el.container);
 		this._el.button_backtostart = DOM.create('span', 'tl-menubar-button', this._el.container);
-		this._el.selected_types = DOM.create('span', 'tl-menubar-selection', this._el.container)
+		this._el.selected_types = DOM.create('span', 'tl-menubar-selected-types', this._el.container)
 
 		if (Browser.mobile) {
 			this._el.container.setAttribute("ontouchstart"," ");
@@ -154,12 +158,11 @@ export class MenuBar {
 		DOMEvent.addListener(this._el.button_backtostart, 'click', this._onButtonBackToStart, this);
 		DOMEvent.addListener(this._el.button_zoomin, 'click', this._onButtonZoomIn, this);
 		DOMEvent.addListener(this._el.button_zoomout, 'click', this._onButtonZoomOut, this);
-		DOMEvent.addListener(this._el.selected_types, 'click', this._onSelectedEventTypes, this);
+		DOMEvent.addListener(this._el.selected_types, 'click', this._onSelectedTypes, this);
 	}
 
 	// Update Display
 	_updateDisplay(width, height, animate) {
-
 		if (width) {
 			this.options.width = width;
 		}
