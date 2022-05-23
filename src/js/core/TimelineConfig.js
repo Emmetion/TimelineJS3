@@ -74,6 +74,7 @@ export class TimelineConfig {
         this.events = [];
         this.eras = [];
         this.event_dict = {}; // despite name, all slides (events + title) indexed by slide.unique_id
+        this.displayed_ids = {} // indexed by slide.unique_id
         this.messages = {
             errors: [],
             warnings: []
@@ -95,7 +96,7 @@ export class TimelineConfig {
 
             for (var i = 0; i < data.events.length; i++) {
                 try {
-                    this.addEvent(data.events[i], true);
+                    this.addEvent(data.events[i], true); // Adds to displayed_ids in the process.
                 } catch (e) {
                     this.logError(e);
                 }
@@ -191,6 +192,11 @@ export class TimelineConfig {
         this.events.push(data);
         this.event_dict[event_id] = data;
 
+        if (typeof(data.event_types) == 'undefined') {
+            console.log("undefined event_types")
+        }
+        this.displayed_ids[event_id] = data; // adds a displayed slide (uniqueid/index) id 
+
         if (!defer_sort) {
             sortByDate(this.events);
         }
@@ -212,6 +218,15 @@ export class TimelineConfig {
             end_date: data.end_date,
             headline: data.text.headline
         });
+    }
+
+    _emptyDisplayedSlides() {
+        this.displayed_ids.empty(); // Empties the displayed slides, saving all data in events in the process.
+    }
+
+    _removeDisplayedSlideIndex(index) {
+        
+        delete this.displayed_ids[index]
     }
 
     /**
