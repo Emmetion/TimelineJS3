@@ -164,6 +164,7 @@ class Timeline {
                 trace("Invalid default background color. Ignoring.");
             }
         }
+        
         mergeData(this.options, options);
 
         if (!(this.options.script_path)) {
@@ -280,7 +281,7 @@ class Timeline {
             this.setConfig(new TimelineConfig(data));
         }
     }
-
+    
     /**
      * Given an input, if it is a Timeline Error object, look up the
      * appropriate error in the current language and return it, optionally 
@@ -918,6 +919,22 @@ class Timeline {
         this.remove(this._getEventIndex(id));
     }
 
+    removeAll() {
+        for (let i = 0; i < this.config.events.length; i++) {
+            id = this.config.events[i].unique_id
+
+            var event = this.config.events.splice(i, 1);
+            delete this.config.event_dict[event[0].unique_id];
+            this._storyslider.destroySlide(this.config.title ? n + 1 : n);
+            this._storyslider._updateDrawSlides();
+
+            this._timenav.destroyMarker(n);
+            this._timenav._updateDrawTimeline(false);
+
+        }
+
+    }
+
     /* Get slide data
     ================================================== */
 
@@ -954,6 +971,10 @@ class Timeline {
 
     getCurrentSlide() {
         return this.getSlideById(this.current_id);
+    }
+
+    removeAllSlides() {
+        this._storyslider.removeAllSlides()
     }
 
     updateDisplay() {
