@@ -9,7 +9,7 @@ module.exports = {
         usedExports: true
     },
     output: {
-        filename: "timeline.js",
+        filename: "timeline-release.js",
         path: path.join(output_path, 'js'),
         library: "TL" // https://webpack.js.org/configuration/output/#outputlibrary
     },
@@ -20,7 +20,7 @@ module.exports = {
             flatten: true
         }]),
         new CopyPlugin([{
-            from: './src/embed/*',
+            from: '/src/embed/*',
             to: path.join(output_path, "embed"),
             flatten: true
         }]),
@@ -57,4 +57,4 @@ module.exports = {
             }
         ]
     }
-};
+}

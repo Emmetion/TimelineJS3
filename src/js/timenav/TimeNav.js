@@ -58,7 +58,6 @@ export class TimeNav {
             marker_width_min: 100, // Minimum Marker Width
             zoom_sequence: [0.5, 1, 2, 3, 5, 8, 13, 21, 34, 55, 89], // Array of Fibonacci numbers for TimeNav zoom levels http://www.maths.surrey.ac.uk/hosted-sites/R.Knott/Fibonacci/fibtable.html
             selection_view: false,
-            filtered_event_types: [""] // Selected event types
         };
 
         // Animation
@@ -79,6 +78,9 @@ export class TimeNav {
 
         // Event Types.
         this._event_types = [];
+
+        // Current Event Filter.
+        this.current_filter = [];
 
         // Row Height
         this._calculated_row_height = 100;
@@ -110,6 +112,7 @@ export class TimeNav {
         this._initLayout();
         this._initEvents();
         this._initData();
+        this._initEventTypes()
         this.updateDisplay();
 
         this._onLoaded();
@@ -287,6 +290,7 @@ export class TimeNav {
         }
     }
 
+
     /*	Markers
     ================================================== */
     _addMarker(marker) {
@@ -296,10 +300,12 @@ export class TimeNav {
     }
 
     _createMarker(data, n) {
-        if (!filtered_types.contains(data.event_types)) {
-            return
+        for (var i = 0; i < data.event_types.length; i++) {
+            if (this._event_types.includes(data.event_types[i])) {
+                return
+            }
         }
-
+        
         var marker = new TimeMarker(data, this.options);
         this._addMarker(marker);
         if (n < 0) {
@@ -430,10 +436,6 @@ export class TimeNav {
             this._eras[i].setColor(era_color);
         };
 
-    }
-
-    _updateEventTypeFilter(t) {
-        
     }
 
     /*	Public
@@ -676,9 +678,8 @@ export class TimeNav {
         });
         this._swipable.enable();
 
-        this._event_types = new EventTypes();
-
     }
+
 
     _initEvents() {
         // Drag Events
@@ -699,7 +700,46 @@ export class TimeNav {
         }
 
         this._drawTimeline();
+    }
 
+    // Filter is an array of strings
+    _setFilterTo(filter) {
+        this.current_filter = filter;
+
+        // this._markers.length
+        for (var x = 0; x < this._markers.length; x++) {
+            let temp_event = this._markers[x]
+            if (temp_event.data.event_types.length < 1) continue;
+            
+            for (var i = 0; i < filter; i++) {
+                if (temp_event.event_types == filter[i]) {
+                    break;
+                } else if (i == filter.length - 1) {
+                    this._removeMarker(this._markers[x])
+                }
+            }
+        }
+
+        this._drawTimeline();
+
+    }
+
+    // Scan every event for event types.
+    _initEventTypes() {
+        for (var i = 0; i < this.config.events.length; i++) {
+            let event = this.config.events[i];
+            if (event.event_types.length == 0) continue;
+
+            for (var x = 0; i < event.event_types.length; x++) {
+                let temp_event_type = event.event_types[x]
+                console.log(event.event_types)
+                if (typeof(temp_event_type) === 'undefined') break;
+                if (this._event_types == temp_event_type) break;
+                if (temp_event_type == "") continue;
+
+                this._event_types.push(temp_event_type);
+            }
+        }
     }
 }
 

@@ -241,10 +241,6 @@ html, body {
         var events = timeline.config.events;;
         var html = '';
 
-        console.log("DEBUG------")
-        console.log(events.length)
-        console.log(events[0].start_date.data.year)
-
         for(var i = 0; i < events.length; i++) {
             var year = events[i].start_date.data.year
             var addedValue = '<option>' + year + '</option>';

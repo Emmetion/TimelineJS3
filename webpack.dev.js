@@ -11,6 +11,7 @@ module.exports = merge.smart({
         stats: 'verbose',
         openPage: "/index.html",
         disableHostCheck: true
+        
     },
     module: {
         rules: [{

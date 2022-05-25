@@ -14,7 +14,7 @@ function clean_integer(s) {
 
 export function parseGoogleSpreadsheetURL(url) {
     let parts = {
-            key: null,
+            key: "",
             worksheet: 0 // not really sure how to use this to get the feed for that sheet, so this is not ready except for first sheet right now
         }
         // key as url parameter (old-fashioned)
@@ -31,9 +31,7 @@ export function parseGoogleSpreadsheetURL(url) {
         if (url.match(/\?gid=(\d+)/)) {
             parts.worksheet = url.match(/\?gid=(\d+)/)[1];
         }
-    } else if (url.match(/^\b[-_A-Za-z0-9]+$/)) {
-        parts.key = url;
-    }
+    } // removed useless else if
 
     if (parts.key) {
         return parts;
@@ -75,7 +73,7 @@ function extractEventFromCSVObject(orig_row) {
         group: row['Group'] || row['Tag'] || '', // small diff between v1 and v3 sheets
         background: interpretBackground(row['Background']), // only in v3 but no problem
         type: row['Type'] || '',
-        event_types: row['Event Type'] || ['']
+        event_types: row['Event Type'] || [''] // Add lines here for data to interperet from google spreadsheet returned URL. 
     }
 
     if (Object.keys(row).includes('Start Date') || Object.keys(row).includes('End Date')) {
@@ -141,7 +139,7 @@ function extractEventFromCSVObject(orig_row) {
  * 
  * @param {string} url 
  */
-export async function readGoogleAsCSV(url, sheets_proxy) {
+export async function readGoogleAsCSV(url, sheets_proxy, key) {
 
     let rows = []
 
@@ -169,6 +167,7 @@ export async function readGoogleAsCSV(url, sheets_proxy) {
             }
         } catch (e) {
             if (e.constructor == TLError) {
+                console.log(e)
                 timeline_config.errors.push(e);
             } else {
                 if (e.message) {
@@ -223,9 +222,12 @@ async function jsonFromGoogleURL(google_url, options) {
 
     if (!options['sheets_proxy']) {
         throw new TLError("Proxy option must be set to read data from Google")
+    }else if (!options['key']) {
+        throw new TLError("API Key must be specified in the options tab.")
+
     }
 
-    var timeline_json = await readGoogleAsCSV(google_url, options['sheets_proxy']);
+    var timeline_json = await readGoogleAsCSV(google_url, options['sheets_proxy'], options['key']);
 
     if (timeline_json) {
         console.log(timeline_json)
@@ -280,9 +282,12 @@ export async function makeConfig(url, callback_or_options) {
             } else {
                 tc.logError(new TLError("unknown_read_err", e.name));
             }
+            console.log(e)
             callback(tc);
             return; // don't process further if there were errors
         }
+
+
 
         tc = new TimelineConfig(json);
         if (json.errors) {

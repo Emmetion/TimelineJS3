@@ -3,6 +3,7 @@ import { BigDate } from "../date/TLDate"
 import { trim, ensureUniqueKey, slugify, unique_ID, trace, stripMarkup } from "../core/Util"
 import TLError from "../core/TLError"
 import DOMPurify from 'dompurify';
+import { straightThroughStringTask } from "simple-git/src/lib/tasks/task";
 
 const SANITIZE_FIELDS = {
     text: ['headline', 'text'],
@@ -101,6 +102,7 @@ export class TimelineConfig {
                     this.logError(e);
                 }
             }
+            
 
             if (data.eras) {
                 data.eras.forEach((era_data, indexOf) => {
@@ -176,14 +178,11 @@ export class TimelineConfig {
 
         if (typeof(data.start_date) == 'undefined') {
             trace("Missing start date, skipping event")
-            console.log(data)
             return null
                 // throw new TLError("missing_start_date_err", event_id);
         }
         if (typeof(data.event_types == 'undefined')) {
             trace("DEBUG - Missing event_types skipping event!")
-            console.log(data)
-            return null;
         } // Requiring an event_type specified.
 
         this._processDates(data);
@@ -193,7 +192,7 @@ export class TimelineConfig {
         this.event_dict[event_id] = data;
 
         if (typeof(data.event_types) == 'undefined') {
-            console.log("undefined event_types")
+            console.log("undefined _event_types")
         }
         this.displayed_ids[event_id] = data; // adds a displayed slide (uniqueid/index) id 
 
@@ -220,12 +219,13 @@ export class TimelineConfig {
         });
     }
 
+    
+
     _emptyDisplayedSlides() {
         this.displayed_ids.empty(); // Empties the displayed slides, saving all data in events in the process.
     }
 
     _removeDisplayedSlideIndex(index) {
-        
         delete this.displayed_ids[index]
     }
 
@@ -402,7 +402,7 @@ export class TimelineConfig {
 
         _process_fields(slide, _tl_sanitize, SANITIZE_FIELDS)
             // handle media.url separately
-        _process_fields(slide, stripMarkup, STRIP_MARKUP_FIELDS)
+        _process_fields(slide, stripMarkup, STRIP_MARKUP_FIELDS) // TODO 1
 
     }
 }
