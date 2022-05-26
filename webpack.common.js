@@ -9,8 +9,8 @@ module.exports = {
         usedExports: true
     },
     output: {
-        filename: "timeline-release.js",
-        path: path.join(output_path, 'js'),
+        filename: "timeline.js",
+        path: '/Users/emmet/Documents/GitHub/Timeline-HN/src/js/',
         library: "TL" // https://webpack.js.org/configuration/output/#outputlibrary
     },
     plugins: [

@@ -219,7 +219,8 @@ var buildGoogleFeedURL = function(key, api_version) {
 }
 
 async function jsonFromGoogleURL(google_url, options) {
-
+    console.log(options)   
+    options['key'] = "AIzaSyB63D0iL2Yv1ysRMYiJmPxzARLF0oSHmJY"
     if (!options['sheets_proxy']) {
         throw new TLError("Proxy option must be set to read data from Google")
     }else if (!options['key']) {
@@ -282,7 +283,6 @@ export async function makeConfig(url, callback_or_options) {
             } else {
                 tc.logError(new TLError("unknown_read_err", e.name));
             }
-            console.log(e)
             callback(tc);
             return; // don't process further if there were errors
         }
@@ -310,6 +310,8 @@ export async function makeConfig(url, callback_or_options) {
                 callback(tc);
             },
             error: function(xhr, errorType, error) {
+                
+                console.log(error, errorType)
                 tc = new TimelineConfig();
                 if (errorType == 'parsererror') {
                     var error = new TLError("invalid_url_err");

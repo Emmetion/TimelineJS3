@@ -300,12 +300,14 @@ export class TimeNav {
     }
 
     _createMarker(data, n) {
-        for (var i = 0; i < data.event_types.length; i++) {
-            if (this._event_types.includes(data.event_types[i])) {
-                return
+        if (!(typeof(data.event_types) === 'undefined')) {
+            for (var i = 0; i < data.event_types.length; i++) {
+                if (this._event_types.includes(data.event_types[i])) {
+                    return
+                }
             }
         }
-        
+
         var marker = new TimeMarker(data, this.options);
         this._addMarker(marker);
         if (n < 0) {
@@ -492,7 +494,7 @@ export class TimeNav {
                 this.animator = Animate(this._el.slider, {
                     left: -this._markers[_n].getLeft() + (this.options.width / 2) + "px",
                     duration: _duration,
-                    easing: _ease
+                    easing: _ease   
                 });
             }
         }
@@ -704,18 +706,17 @@ export class TimeNav {
 
     // Filter is an array of strings
     _setFilterTo(filter) {
-        this.current_filter = filter;
-
+        this._markers = []
         // this._markers.length
-        for (var x = 0; x < this._markers.length; x++) {
-            let temp_event = this._markers[x]
+        for (var x = 0; x < this.config.events.length; x++) {
+            let temp_event = this.config.events[x]
             if (temp_event.data.event_types.length < 1) continue;
             
             for (var i = 0; i < filter; i++) {
                 if (temp_event.event_types == filter[i]) {
                     break;
                 } else if (i == filter.length - 1) {
-                    this._removeMarker(this._markers[x])
+                    this._addMarker(this._markers[x])
                 }
             }
         }
@@ -728,16 +729,12 @@ export class TimeNav {
     _initEventTypes() {
         for (var i = 0; i < this.config.events.length; i++) {
             let event = this.config.events[i];
+            if (typeof(event.event_types) === 'undefined') continue;
             if (event.event_types.length == 0) continue;
 
             for (var x = 0; i < event.event_types.length; x++) {
-                let temp_event_type = event.event_types[x]
-                console.log(event.event_types)
-                if (typeof(temp_event_type) === 'undefined') break;
-                if (this._event_types == temp_event_type) break;
-                if (temp_event_type == "") continue;
-
-                this._event_types.push(temp_event_type);
+                if (typeof(event.event_types) === 'undefined') break;
+                if (this._event_types.includes(event.event_types[x])) this._event_types.push(event.event_types[x])
             }
         }
     }

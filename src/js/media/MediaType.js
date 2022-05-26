@@ -228,7 +228,8 @@ export function lookupMediaType(m, image_only) {
 
     } else {
         for (var i = 0; i < media_types.length; i++) {
-            if (m.url.match(media_types[i].match_str)) {
+            if (m.url && m.url.match(media_types[i].match_str)) {
+                console.log(media_types[i].match_str)
                 return media_types[i];
             }
         }
