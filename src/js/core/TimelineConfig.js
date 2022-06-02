@@ -72,6 +72,7 @@ export class TimelineConfig {
         this.title = '';
         this.scale = '';
         this.events = [];
+        this.enum_events = [];
         this.eras = [];
         this.event_dict = {}; // despite name, all slides (events + title) indexed by slide.unique_id
         this.messages = {
@@ -184,6 +185,9 @@ export class TimelineConfig {
         this._tidyFields(data);
 
         this.events.push(data);
+        if (!this.enum_events.includes(data)) {
+            this.enum_events.push(data)
+        }
         this.event_dict[event_id] = data;
 
         if (!defer_sort) {
@@ -381,5 +385,19 @@ export class TimelineConfig {
             // handle media.url separately
         _process_fields(slide, stripMarkup, STRIP_MARKUP_FIELDS)
 
+    }
+
+    _getEventsByFilter() {
+        let filter = this.filter;
+        let output = []
+        console.log("_getEventsByFilter: events.length=" + this.events.length)
+        for (var i = 0; i < this.events.length; i++) {
+            if (filter == "Any") {
+                output.push(this.events[i])
+                continue;
+            }
+            if (this.events[i].event_types.includes(filter)) output.push(this.events[i])
+        }
+        return output;
     }
 }

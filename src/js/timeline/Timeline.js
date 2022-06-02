@@ -441,7 +441,7 @@ class Timeline {
         this._storyslider.init();
 
         // Create Menu Bar
-        this._menubar = new MenuBar(this._el.menubar, this._el.container, this.options);
+        this._menubar = new MenuBar(this._el.menubar, this._el.container, this.options, this._getEventTypesFromEvents(this.config.events));
 
         // LAYOUT
         if (this.options.layout == "portrait") {
@@ -470,8 +470,19 @@ class Timeline {
         // Menubar Events
         this._menubar.on('zoom_in', this._onZoomIn, this);
         this._menubar.on('zoom_out', this._onZoomOut, this);
-        this._menubar.on('back_to_start', this._onBackToStart, this);
+        this._menubar.on('back_to_start', this._onBackToStart, this)
+        this._menubar.on("select_filter", this._onSelectFilter, this)
 
+    }
+
+    _getEventTypesFromEvents(events) {
+        let event_types = []
+        for (var i = 0; i < events.length; i++) {
+            for (var x = 0; x < events[i].event_types.length; x++) {
+                if (!(event_types.includes(events[i].event_types[x]))) event_types.push(events[i].event_types[x]);   
+            }
+        }
+        return event_types
     }
 
     _onColorChange(e) {
@@ -545,6 +556,11 @@ class Timeline {
         this.fire("nav_previous", e);
     }
 
+    _onSelectFilter(e) {
+        this.setFilter()
+        this.fire("back_to_start", e)
+        console.log(e)
+    }
 
     _updateDisplay(timenav_height, animate, d) {
         var duration = this.options.duration,
@@ -912,6 +928,30 @@ class Timeline {
         this.remove(this._getEventIndex(id));
     }
 
+
+    // You are expected to create slides after using this method, and run method this._timenav._updateDrawTimeline(false);
+    removeAll() {
+        while (this.config.events.length > 0) {
+            if (this.config.events[0].unique_id == this.current_id) {
+                if (0 < this.config.events.length - 1) {
+                    this.goTo(0 + 1);
+                } else {
+                    this.goTo(0 - 1);
+                }
+            }
+
+            var event = this.config.events.splice(0, 1);
+            delete this.config.event_dict[event[0].unique_id];
+            this._storyslider.destroySlide(this.config.title ? 0 + 1 : 0);
+            this._storyslider._updateDrawSlides();
+
+            this._timenav.destroyMarker(0);
+            // this._timenav._updateDrawTimeline(false);
+
+            this.fire("removed", { unique_id: event[0].unique_id });
+        }   
+    }
+
     /* Get slide data
     ================================================== */
 
@@ -930,6 +970,28 @@ class Timeline {
 
     getDataById(id) {
         return this.getData(this._getSlideIndex(id));
+    }
+
+    /* Sets the filter in the _timenav object.*/
+    /* @{param} filter - test*/
+    setFilter() {
+        let select_filter = this._menubar._el
+        console.log(select_filter)
+        let doc = document.getElementsByClassName("tl-menubar-select");
+        let filter = doc[0].options[doc[0].selectedIndex].value
+
+        this.removeAll()
+
+        for(let x = 0; x < this.config.enum_events.length; x++) {
+            if (this.config.enum_events[x].event_types.includes(filter) || filter == "All") this.add(this.config.enum_events[x])
+        }
+        this._timenav._updateDrawTimeline(false);
+
+        // this._timenav._setFilterTo(filter)
+        // this._timenav.updateDisplay()
+
+        // this._storyslider._setFilterTo(filter)
+        // this._storyslider.updateDisplay()
     }
 
     /* Get slide object
