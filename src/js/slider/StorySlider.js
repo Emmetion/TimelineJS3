@@ -104,6 +104,20 @@ export class StorySlider {
         this._onLoaded();
     }
 
+        // Filter is a single string without spaces.
+    _setFilterTo(filter) {
+        for (let i = 0; i < this._slides; i++) {
+            this._destroySlide(i)
+        }
+
+        console.log(this.data)
+        let events = this.data._getEventsByFilter(filter)
+        this.createSlides(events)
+        this.goTo(0)
+
+        this._updateDrawSlides(); 
+    }
+    
     /* Slides
     ================================================== */
     _addSlide(slide) {

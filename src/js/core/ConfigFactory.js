@@ -74,7 +74,8 @@ function extractEventFromCSVObject(orig_row) {
         display_date: row['Display Date'] || '', // only in v3 but no problem
         group: row['Group'] || row['Tag'] || '', // small diff between v1 and v3 sheets
         background: interpretBackground(row['Background']), // only in v3 but no problem
-        type: row['Type'] || ''
+        type: row['Type'] || '',
+        event_types: row['Event Types'] || []
     }
 
     if (Object.keys(row).includes('Start Date') || Object.keys(row).includes('End Date')) {
@@ -328,10 +329,13 @@ function handleRow(event, timeline_config) {
         } else {
             timeline_config.warnings.push("Multiple title slides detected.");
             timeline_config.events.push(event);
+            timeline_config.enum_evnets.push(event)
         }
     } else if (row_type == 'era') {
         timeline_config.eras.push(event);
+        timeline_config.enum_eras.push(event);  
     } else {
         timeline_config.events.push(event);
+        timeline_config.enum_events.push(event);
     }
 }

@@ -54,7 +54,8 @@ export class TimeMarker {
 				headline: "",
 				text: ""
 			},
-			media: null
+			media: null,
+			background_color: ""
 		};
 
 		// Options
