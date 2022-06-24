@@ -8,7 +8,7 @@ import { addClass, removeClass } from "../dom/DOMUtil"
 import { DOMEvent } from "../dom/DOMEvent"
 
 export class MenuBar {
-	constructor(elem, parent_elem, options) {
+	constructor(elem, parent_elem, options, event_types) {
 		// DOM ELEMENTS
 		this._el = {
 			parent: {},
@@ -16,8 +16,7 @@ export class MenuBar {
 			button_backtostart: {},
 			button_zoomin: {},
 			button_zoomout: {},
-			selected_types: {}, // Selected Event Types
-			vewing_types: {},
+			select_filter: {},
 			arrow: {},
 			line: {},
 			coverbar: {},
@@ -47,6 +46,9 @@ export class MenuBar {
 
 		// Animation
 		this.animator = {};
+
+		this.event_types = event_types
+		this.current_filter = "All"
 
 		// Merge Data and Options
 		mergeData(this.options, options);
@@ -81,14 +83,6 @@ export class MenuBar {
       removeClass(this._el.button_zoomout,'tl-menubar-button-inactive');
 		} else {
       addClass(this._el.button_zoomout,'tl-menubar-button-inactive');
-		}
-	}
-
-	toggleSelectedEvents(show) {
-		if (show) {
-			removeClass(this._el.selected_types,'tl-menubar-button-inactive');
-		} else {
-			addClass(this._el.selected_types,'tl-menubar-button-inactive');
 		}
 	}
 
@@ -127,8 +121,8 @@ export class MenuBar {
 		this.fire("back_to_start", e);
 	}
 
-	_onSelectedTypes(e) {
-		this.fire("selected_event_types", e);
+	_onSelectFilter(e) {
+		this.fire("select_filter", e);
 	}
 
 
@@ -140,29 +134,39 @@ export class MenuBar {
 		this._el.button_zoomin = DOM.create('span', 'tl-menubar-button', this._el.container);
 		this._el.button_zoomout = DOM.create('span', 'tl-menubar-button', this._el.container);
 		this._el.button_backtostart = DOM.create('span', 'tl-menubar-button', this._el.container);
-		this._el.selected_types = DOM.create('span', 'tl-menubar-selected-types', this._el.container)
+		this._el.button_selectfilter = DOM.create('span', 'tl-menubar-selectfilter', this._el.container)
 
 		if (Browser.mobile) {
 			this._el.container.setAttribute("ontouchstart"," ");
 		}
 
+		var list = this._generateEventTypes(this.event_types)
+
 		this._el.button_backtostart.innerHTML		= "<span class='tl-icon-goback'></span>";
 		this._el.button_zoomin.innerHTML			= "<span class='tl-icon-zoom-in'></span>";
 		this._el.button_zoomout.innerHTML			= "<span class='tl-icon-zoom-out'></span>";
-		this._el.selected_types.innerHTML           = "<span class='tl-icon-selected_types'></span>"
+		this._el.button_selectfilter.innerHTML	    = "<select id='tl-selectfilter'><option id='all'>All</option>"+list+" </select>";
+		
+	}
 
-
+	_generateEventTypes(event_types) {
+		var html = ""
+		for (var i = 0; i < event_types.length; i++) {
+			html += "<option id='" + event_types[i] + "'>" + event_types[i] + "</option>"
+		}
+		return html
 	}
 
 	_initEvents () {
 		DOMEvent.addListener(this._el.button_backtostart, 'click', this._onButtonBackToStart, this);
 		DOMEvent.addListener(this._el.button_zoomin, 'click', this._onButtonZoomIn, this);
 		DOMEvent.addListener(this._el.button_zoomout, 'click', this._onButtonZoomOut, this);
-		DOMEvent.addListener(this._el.selected_types, 'click', this._onSelectedTypes, this);
+		DOMEvent.addListener(this._el.select_filter, 'change', this._onSelectFilter, this);
 	}
 
 	// Update Display
 	_updateDisplay(width, height, animate) {
+
 		if (width) {
 			this.options.width = width;
 		}
@@ -170,6 +174,8 @@ export class MenuBar {
 			this.options.height = height;
 		}
 	}
+
+	
 
 }
 
