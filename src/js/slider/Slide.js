@@ -102,7 +102,7 @@ export class Slide {
     }
 
     hide() {
-
+        
     }
 
     setActive(is_active) {
