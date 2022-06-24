@@ -1,22 +1,14 @@
 {
 	"folders": [
 		{
-			"path": "../../../Downloads/timeline3"
-		},
-		{
 			"path": "."
 		},
 		{
-			"path": "../../../Downloads/sheets-to-json"
+			"path": "../../../Downloads/sheets-to-json-1.0.0"
 		},
 		{
-			"path": "../../Timeline-Host"
-		},
-		{
-			"path": "../../joseury/RiseofStrifedemo"
+			"path": "../Timeline-HN"
 		}
 	],
-	"settings": {
-		"rpc.appName": "Visual Studio Code"
-	}
+	"settings": {}
 }

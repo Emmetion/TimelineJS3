@@ -25,9 +25,11 @@ const AXIS_TICK_DATEFORMAT_LOOKUP = {
 
 export class TimeScale {
 
-    constructor(timeline_config, options) {
+    constructor(timeline_config, options, events) {
 
-        var slides = timeline_config.events;
+        var slides = events;
+        console.log(timeline_config._getEventsByFilter())
+        console.log("slides - " + slides)
         this._scale = timeline_config.scale;
 
         options = mergeData({ // establish defaults

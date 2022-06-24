@@ -104,6 +104,20 @@ export class StorySlider {
         this._onLoaded();
     }
 
+    // Filter is a single string without spaces.
+    _setFilterTo(filter) {
+        for (let i = 0; i < this._slides; i++) {
+            this._destroySlide(i)
+        }
+
+        console.log(this.data)
+        let events = this.data._getEventsByFilter(filter)
+        this.createSlides(events)
+        this.goTo(0)
+
+        this._updateDrawSlides(); 
+    }
+
     /* Slides
     ================================================== */
     _addSlide(slide) {
@@ -122,7 +136,7 @@ export class StorySlider {
         }
     }
 
-    _createSlides(array) { // CREATES SLIDES, change to only slides that are visible.
+    _createSlides(array) {
         for (var i = 0; i < array.length; i++) {
             if (array[i].unique_id == "") {
                 array[i].unique_id = unique_ID(6, "tl-slide");
@@ -135,13 +149,6 @@ export class StorySlider {
         slide.removeFrom(this._el.slider_item_container);
         slide.off('added', this._onSlideRemoved, this);
         slide.off('background_change', this._onBackgroundChange);
-    }
-
-    removeAllSlides() {
-        for (var i = 0; i < this._slides.length; i++) {
-            this._removeSlide(this._slides[i])
-            this._slides.splice(n,1)
-        }
     }
 
     _destroySlide(n) {
@@ -467,7 +474,7 @@ export class StorySlider {
         if (this.data.title) {
             this._createSlide(this.data.title, true, -1);
         }
-        this._createSlides(this.data.displayed_ids);
+        this._createSlides(this.data.events);
     }
 
     /*	Events

@@ -52,7 +52,7 @@ function make_keydown_handler(timeline) {
  *     the Timeline should be bound
  * @param {object|String} - a JavaScript object conforming to the TimelineJS
  *     configuration format, or a String which is the URL for a Google Sheets document
- *     or JSON configuration file which Timeline will retrieve and parse into a JavaScript object. // How to get the document imported from json, instead of URL.
+ *     or JSON configuration file which Timeline will retrieve and parse into a JavaScript object.
  *     NOTE: do not pass a JSON String for this. TimelineJS doesn't try to distinguish a 
  *     JSON string from a URL string. If you have a JSON String literal, parse it using
  *     `JSON.parse` before passing it to the constructor.
@@ -96,7 +96,7 @@ class Timeline {
         this.config = null;
 
         this.options = {
-            script_path: "https://cdn.jsdelivr.net/gh/Emmetion/TimelineJS3/src/js/", // as good a default as any
+            script_path: "https://cdn.knightlab.com/libs/timeline3/latest/js/", // as good a default as any
             height: this._el.container.offsetHeight,
             width: this._el.container.offsetWidth,
             debug: false,
@@ -164,7 +164,6 @@ class Timeline {
                 trace("Invalid default background color. Ignoring.");
             }
         }
-        
         mergeData(this.options, options);
 
         if (!(this.options.script_path)) {
@@ -281,7 +280,7 @@ class Timeline {
             this.setConfig(new TimelineConfig(data));
         }
     }
-    
+
     /**
      * Given an input, if it is a Timeline Error object, look up the
      * appropriate error in the current language and return it, optionally 
@@ -351,6 +350,7 @@ class Timeline {
         this.config = config;
         if (this.config.isValid()) {
             // don't validate if it's already problematic to avoid clutter
+            console.log(this.config)
             this.config.validate();
             this._validateOptions();
         }
@@ -442,7 +442,7 @@ class Timeline {
         this._storyslider.init();
 
         // Create Menu Bar
-        this._menubar = new MenuBar(this._el.menubar, this._el.container, this.options);
+        this._menubar = new MenuBar(this._el.menubar, this._el.container, this.options, this._getEventTypesFromEvents(this.config.events));
 
         // LAYOUT
         if (this.options.layout == "portrait") {
@@ -472,7 +472,19 @@ class Timeline {
         this._menubar.on('zoom_in', this._onZoomIn, this);
         this._menubar.on('zoom_out', this._onZoomOut, this);
         this._menubar.on('back_to_start', this._onBackToStart, this);
-        this._menubar.on("selection_toggle", this._onSelectionToggle, this)
+        this._menubar.on("select_filter", this._onSelectFilter, this)
+
+    }
+
+    _getEventTypesFromEvents(events) {
+        let event_types = []
+        for (var i = 0; i < events.length; i++) {
+            for (var x = 0; x < events[i].event_types.length; x++) {
+                if (!(event_types.includes(events[i].event_types[x]))) event_types.push(events[i].event_types[x]);
+                
+            }
+        }
+        return event_types
     }
 
     _onColorChange(e) {
@@ -481,7 +493,7 @@ class Timeline {
 
     _onSlideChange(e) {
         if (this.current_id != e.unique_id) {
-            this.current_id = e.unique_id;
+            this.current_id = e.unique_id;  
             this._timenav.goToId(this.current_id);
             this._onChange(e);
         }
@@ -502,10 +514,6 @@ class Timeline {
             this._menubar.toogleZoomOut(e.show);
         }
 
-    }
-
-    _onSelectionToggle(e) {
-        this._menubar.selection
     }
 
     _onChange(e) {
@@ -529,11 +537,7 @@ class Timeline {
         this._timenav.zoomOut();
         this.fire("zoom_out", { zoom_level: this._timenav.options.scale_factor }, this);
     }
-
-    _onSelectionToggle(e) {
-        this.fire("selection_toggle", { toggle: !this._timenav.options.selection_view }, this)
-    }
-
+    
     _onTimeNavLoaded() {
         this._loaded.timenav = true;
         this._onLoaded();
@@ -552,6 +556,14 @@ class Timeline {
         this.fire("nav_previous", e);
     }
 
+    _onSelectFilter(e) {
+        let sel = document.getElementById("tl-selectfilter")
+        let filter = sel.options[sel.selectedIndex].id;
+        console.log(filter)
+        this.setFilter(filter)
+        this.fire("back_to_start", e)
+        console.log(e)
+    }
 
     _updateDisplay(timenav_height, animate, d) {
         var duration = this.options.duration,
@@ -808,6 +820,10 @@ class Timeline {
         }
     }
 
+    _updateFilter() {
+        document.getElementById("")
+    }
+
 
     /*
         PUBLIC API
@@ -918,21 +934,28 @@ class Timeline {
     removeId(id) {
         this.remove(this._getEventIndex(id));
     }
-
     removeAll() {
         for (let i = 0; i < this.config.events.length; i++) {
             id = this.config.events[i].unique_id
 
             var event = this.config.events.splice(i, 1);
             delete this.config.event_dict[event[0].unique_id];
-            this._storyslider.destroySlide(this.config.title ? n + 1 : n);
-            this._storyslider._updateDrawSlides();
 
             this._timenav.destroyMarker(n);
             this._timenav._updateDrawTimeline(false);
 
         }
 
+    }
+
+    /* Sets the filter in the _timenav object.*/
+    /* @{param} filter - test*/
+    setFilter(filter) {
+        this._timenav._setFilterTo(filter)
+        this._timenav.updateDisplay()
+
+        this._storyslider._setFilterTo(filter)
+        this._storyslider.updateDisplay()
     }
 
     /* Get slide data
@@ -971,10 +994,6 @@ class Timeline {
 
     getCurrentSlide() {
         return this.getSlideById(this.current_id);
-    }
-
-    removeAllSlides() {
-        this._storyslider.removeAllSlides()
     }
 
     updateDisplay() {

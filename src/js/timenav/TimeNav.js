@@ -56,8 +56,7 @@ export class TimeNav {
             timenav_height_min: 150, // Minimum timenav height
             marker_height_min: 30, // Minimum Marker Height
             marker_width_min: 100, // Minimum Marker Width
-            zoom_sequence: [0.5, 1, 2, 3, 5, 8, 13, 21, 34, 55, 89], // Array of Fibonacci numbers for TimeNav zoom levels http://www.maths.surrey.ac.uk/hosted-sites/R.Knott/Fibonacci/fibtable.html
-            selection_view: false,
+            zoom_sequence: [0.5, 1, 2, 3, 5, 8, 13, 21, 34, 55, 89] // Array of Fibonacci numbers for TimeNav zoom levels http://www.maths.surrey.ac.uk/hosted-sites/R.Knott/Fibonacci/fibtable.html
         };
 
         // Animation
@@ -75,12 +74,6 @@ export class TimeNav {
 
         // Groups Array
         this._groups = [];
-
-        // Event Types.
-        this._event_types = [];
-
-        // Current Event Filter.
-        this.current_filter = [];
 
         // Row Height
         this._calculated_row_height = 100;
@@ -112,7 +105,6 @@ export class TimeNav {
         this._initLayout();
         this._initEvents();
         this._initData();
-        this._initEventTypes()
         this.updateDisplay();
 
         this._onLoaded();
@@ -124,13 +116,20 @@ export class TimeNav {
         // POSITION X
         for (var i = 0; i < this._markers.length; i++) {
             var pos = this.timescale.getPositionInfo(i);
-            if (fast) {
-                this._markers[i].setClass("tl-timemarker tl-timemarker-fast");
+            console.log(pos)
+            if (pos.start) {
+                if (fast) {
+                    this._markers[i].setClass("tl-timemarker tl-timemarker-fast");
+                } else {
+                    this._markers[i].setClass("tl-timemarker");
+                }
+                this._markers[i].setPosition({ left: pos.start });
+                this._markers[i].setWidth(pos.width);
             } else {
-                this._markers[i].setClass("tl-timemarker");
+                console.log("title slide?")
+                continue;
             }
-            this._markers[i].setPosition({ left: pos.start });
-            this._markers[i].setWidth(pos.width);
+            
         };
     }
 
@@ -290,7 +289,6 @@ export class TimeNav {
         }
     }
 
-
     /*	Markers
     ================================================== */
     _addMarker(marker) {
@@ -300,14 +298,6 @@ export class TimeNav {
     }
 
     _createMarker(data, n) {
-        if (!(typeof(data.event_types) === 'undefined')) {
-            for (var i = 0; i < data.event_types.length; i++) {
-                if (this._event_types.includes(data.event_types[i])) {
-                    return
-                }
-            }
-        }
-
         var marker = new TimeMarker(data, this.options);
         this._addMarker(marker);
         if (n < 0) {
@@ -494,7 +484,7 @@ export class TimeNav {
                 this.animator = Animate(this._el.slider, {
                     left: -this._markers[_n].getLeft() + (this.options.width / 2) + "px",
                     duration: _duration,
-                    easing: _ease   
+                    easing: _ease
                 });
             }
         }
@@ -616,13 +606,14 @@ export class TimeNav {
         // Check to see if redraw is needed
         if (check_update) {
             /* keep this aligned with _getTimeScale or reduce code duplication */
+            // let events = this.timeline_config._getEventsByFilter();
+            console.log("this.timeline_config._getEventsByFilter()")
+            console.log(events)
             var temp_timescale = new TimeScale(this.config, {
                 display_width: this._el.container.offsetWidth,
                 screen_multiplier: this.options.scale_factor,
                 max_rows: this.max_rows
-
-            });
-
+            }, events);
             if (this.timescale.getMajorScale() == temp_timescale.getMajorScale() &&
                 this.timescale.getMinorScale() == temp_timescale.getMinorScale()) {
                 do_update = true;
@@ -682,7 +673,6 @@ export class TimeNav {
 
     }
 
-
     _initEvents() {
         // Drag Events
         this._swipable.on('dragmove', this._onDragMove, this);
@@ -702,42 +692,22 @@ export class TimeNav {
         }
 
         this._drawTimeline();
+
     }
 
-    // Filter is an array of strings
+    // Filter is a single string without spaces.
     _setFilterTo(filter) {
-        this._markers = []
-        // this._markers.length
-        for (var x = 0; x < this.config.events.length; x++) {
-            let temp_event = this.config.events[x]
-            if (temp_event.data.event_types.length < 1) continue;
-            
-            for (var i = 0; i < filter; i++) {
-                if (temp_event.event_types == filter[i]) {
-                    break;
-                } else if (i == filter.length - 1) {
-                    this._addMarker(this._markers[x])
-                }
-            }
+        for (var i = 0; i < this._markers; i++) {
+            this.destroyMarker(i)
         }
 
+        let events = this.config._getEventsByFilter(filter)
+        this.createMarkers(events)
         this._drawTimeline();
-
     }
 
-    // Scan every event for event types.
-    _initEventTypes() {
-        for (var i = 0; i < this.config.events.length; i++) {
-            let event = this.config.events[i];
-            if (typeof(event.event_types) === 'undefined') continue;
-            if (event.event_types.length == 0) continue;
-
-            for (var x = 0; i < event.event_types.length; x++) {
-                if (typeof(event.event_types) === 'undefined') break;
-                if (this._event_types.includes(event.event_types[x])) this._event_types.push(event.event_types[x])
-            }
-        }
-    }
+    
+    
 }
 
 classMixin(TimeNav, Events, DOMMixins)

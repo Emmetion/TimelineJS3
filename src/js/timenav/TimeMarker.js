@@ -226,16 +226,12 @@ export class TimeMarker {
 	================================================== */
 	_initLayout() {
 		// Create Layout
-		console.log("DEBUG initLayout()")
 		this._el.container = DOM.create("div", "tl-timemarker");
 		if (this.data.unique_id) {
-			console.log("if unique_id")
-
 			this._el.container.id = this.data.unique_id + "-marker";
 		}
 
 		if (this.data.end_date) {
-			console.log("if end_date")
 			this.has_end_date = true;
 			this._el.container.className = 'tl-timemarker tl-timemarker-with-end';
 		}
@@ -250,16 +246,12 @@ export class TimeMarker {
 		this._el.line_right = DOM.create("div", "tl-timemarker-line-right", this._el.timespan);
 
 		// Thumbnail or Icon
-		if (this.data.media) {			
-			console.log(this.data.media)
-			console.log("if media")
-
+		if (this.data.media) {
 			this._el.media_container = DOM.create("div", "tl-timemarker-media-container", this._el.content);
 			// ugh. needs an overhaul
 			var mtd = { url: this.data.media.thumbnail };
 			var thumbnail_media_type = (this.data.media.thumbnail) ? lookupMediaType(mtd, true) : null;
 			if (thumbnail_media_type) {
-				console.log("if thumbnail")
 				var thumbnail_media = new thumbnail_media_type.cls(mtd);
 				thumbnail_media.on("loaded", function () {
 					this._el.media = DOM.create("img", "tl-timemarker-media", this._el.media_container);
@@ -267,13 +259,8 @@ export class TimeMarker {
 				}.bind(this));
 				thumbnail_media.loadMedia();
 			} else {
-				console.log("else")
-				var media = lookupMediaType(this.data.media);
-				if (!(typeof(media.type) === 'undefined')) {
-					console.log("undefined")
-					var type = media.type;
-					this._el.media = DOM.create("span", "tl-icon-" + type, this._el.media_container);
-				}
+				var media_type = lookupMediaType(this.data.media).type;
+				this._el.media = DOM.create("span", "tl-icon-" + media_type, this._el.media_container);
 			}
 
 		}
@@ -281,19 +268,12 @@ export class TimeMarker {
 
 		// Text
 		this._el.text = DOM.create("div", "tl-timemarker-text", this._el.content);
-		console.log("DEBUG _el.text")
-
 		this._text = DOM.create("h2", "tl-headline", this._el.text);
-		console.log("DEBUG setHeadline")
-
 		if (this.data.text.headline && this.data.text.headline != "") {
-			console.log("if 1")
 			this._text.innerHTML = unlinkify(this.data.text.headline);
 		} else if (this.data.text.text && this.data.text.text != "") {
-			console.log("if 2")
 			this._text.innerHTML = unlinkify(this.data.text.text);
 		} else if (this.data.media && this.data.media.caption && this.data.media.caption != "") {
-			console.log("if 3")
 			this._text.innerHTML = unlinkify(this.data.media.caption);
 		}
 
@@ -301,7 +281,6 @@ export class TimeMarker {
 
 		// Fire event that the slide is loaded
 		this.onLoaded();
-		console.log("DEBUG onLoaded()")
 
 	}
 

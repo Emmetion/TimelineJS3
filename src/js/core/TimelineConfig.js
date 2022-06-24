@@ -3,7 +3,8 @@ import { BigDate } from "../date/TLDate"
 import { trim, ensureUniqueKey, slugify, unique_ID, trace, stripMarkup } from "../core/Util"
 import TLError from "../core/TLError"
 import DOMPurify from 'dompurify';
-import { straightThroughStringTask } from "simple-git/src/lib/tasks/task";
+import { eq } from "lodash";
+import { outputFileSync } from "fs-extra";
 
 const SANITIZE_FIELDS = {
     text: ['headline', 'text'],
@@ -73,6 +74,8 @@ export class TimelineConfig {
         this.title = '';
         this.scale = '';
         this.events = [];
+        this.event_types = ["Any"];
+        this.filter = "Any";
         this.eras = [];
         this.event_dict = {}; // despite name, all slides (events + title) indexed by slide.unique_id
         this.displayed_ids = {} // indexed by slide.unique_id
@@ -97,12 +100,11 @@ export class TimelineConfig {
 
             for (var i = 0; i < data.events.length; i++) {
                 try {
-                    this.addEvent(data.events[i], true); // Adds to displayed_ids in the process.
+                    this.addEvent(data.events[i], true);
                 } catch (e) {
                     this.logError(e);
                 }
             }
-            
 
             if (data.eras) {
                 data.eras.forEach((era_data, indexOf) => {
@@ -178,22 +180,24 @@ export class TimelineConfig {
 
         if (typeof(data.start_date) == 'undefined') {
             trace("Missing start date, skipping event")
+            console.log(data)
             return null
                 // throw new TLError("missing_start_date_err", event_id);
         }
-        if (typeof(data.event_types == 'undefined')) {
-            trace("DEBUG - Missing event_types skipping event!")
-        } // Requiring an event_type specified.
 
         this._processDates(data);
         this._tidyFields(data);
 
+
+        if (data.event_types.length > 0) {
+            for (var i = 0; i < data.event_types.length; i++) {
+                if (!(this.event_types.includes(this.filter))) this.event_types.push(data.event_types[i])
+            }
+        }
+
         this.events.push(data);
         this.event_dict[event_id] = data;
 
-        if (typeof(data.event_types) == 'undefined') {
-            console.log("undefined _event_types")
-        }
         this.displayed_ids[event_id] = data; // adds a displayed slide (uniqueid/index) id 
 
         if (!defer_sort) {
@@ -218,9 +222,6 @@ export class TimelineConfig {
             headline: data.text.headline
         });
     }
-
-    
-
     _emptyDisplayedSlides() {
         this.displayed_ids.empty(); // Empties the displayed slides, saving all data in events in the process.
     }
@@ -228,7 +229,6 @@ export class TimelineConfig {
     _removeDisplayedSlideIndex(index) {
         delete this.displayed_ids[index]
     }
-
     /**
      * Given a slide, verify that its ID is unique, or assign it one which is.
      * The assignment happens in this function, and the assigned ID is also
@@ -301,9 +301,6 @@ export class TimelineConfig {
                             this.scale = "cosmological";
                             break;
                         }
-                    }else if (events[i].event_type && typeof(events[i].event_type != "undefined")) {
-                        print("Invalid event_type.") // EmmetDebug
-                        break;
                     }
                 }
                 trace(`Determining scale dynamically: ${this.scale}`);
@@ -399,10 +396,25 @@ export class TimelineConfig {
         }
         fillIn(slide.text, 'text');
         fillIn(slide.text, 'headline');
+        fillIn(slide.text, 'event_types')
 
         _process_fields(slide, _tl_sanitize, SANITIZE_FIELDS)
             // handle media.url separately
-        _process_fields(slide, stripMarkup, STRIP_MARKUP_FIELDS) // TODO 1
+        _process_fields(slide, stripMarkup, STRIP_MARKUP_FIELDS)
 
+    }
+
+    _getEventsByFilter() {
+        let filter = this.filter;
+        let output = []
+        console.log("_getEventsByFilter: events.length=" + this.events.length)
+        for (var i = 0; i < this.events.length; i++) {
+            if (filter == "Any") {
+                output.push(this.events[i])
+                continue;
+            }
+            if (this.events[i].event_types.includes(filter)) output.push(this.events[i])
+        }
+        return output;
     }
 }
